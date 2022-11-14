@@ -197,96 +197,34 @@ img.show()
 
 
 class Solution:
-    def __init__(self) -> None:
-        self.solution_edges=[]
-        self.solution_nodes=[Stages[0].nodes[0]]
-        self.cost=0
+    def __init__(self,solution_edges,solution_nodes,cost) -> None:
+        self.solution_edges=solution_edges
+        self.solution_nodes=solution_nodes
+        self.cost=cost
         self.stage=Stages[0]
+    def __str__(self) -> str:
+        return str(self.cost)
         
 solutions=[]
 
-# while 
-
-# def a(stageNum):
-#     solution=Solution()
-#     if stageNum==stage_count-1:
-#         return
-#     a(stageNum+1)
-# # for i in range(10):
-# for i in range(10):
-#     currently_at_node=Stages[0].nodes[0]
-#     sol=Solution()
-currently_at_node=Stages[0].nodes[0]
-cost=0
-solution=[]
-def sol_recur(stage):
-    if stage==stage_count-1:
+def solution_recur(stage,nodes,edges,cost):
+    if stage==0:
+        nodes=[Stages[0].nodes[0]]
+        cost=0
+        solution_recur(stage+1,nodes,edges,cost)
+    elif stage==stage_count:
+        solutions.append(Solution(solution_edges=edges,cost=cost,solution_nodes=nodes))
         return
-    for i in Stages:
-        for j in i.nodes:
-            for k in j.edges:
-                return sol_recur(stage,)
-        sol_recur(stage+1)
-    
-for i in range(10):
-    currently_at_node=Stages[0].nodes[0]
-    for j in range(len(Stages)):
-        if  j<len(Stages)-1:
-            stage=Stages[j]
-            for k in range(currently_at_node.edge_count):
-
-
-for i in range(len(Stages)):
-    if i <len(Stages)-1:
-        edge=currently_at_node.edges[0]
-        cost+=edge.weight
-        solution.append(edge)
-        currently_at_node=edge.node2
-solutions.append(solution)
-o=solutions[0]
-for i in o:
-    print(i.name,end=',')
-
-print('------------')
-
-currently_at_node=Stages[0].nodes[0]
-cost=0
-solution=[]
-for i in range(len(Stages)):
-    if i <len(Stages)-1:
-        edge=currently_at_node.edges[1]
-        cost+=edge.weight
-        solution.append(edge)
-        currently_at_node=edge.node2
-solutions.append(solution)
-o=solutions[0]
-for i in o:
-    print(i.name,end=',')
-# while True:
-#     currently_at_node=Stages[0].nodes[0]
-#     cost=0
-#     for i in range(len(Stages)):
-#         stage=Stages[i]
-        
-#         for k in range(stage.edge_count):
-#             edge=stage.edges[k]
-#             cost+=edge.weight
-#             dest_node=edge.node2
-#             for i in range(dest_node.edge_count):
-                
-
-
-
-
-#             node=stage.nodes[k]
-#             node_edges=node.edges
-#             for node in node_edges:
-#                 print(node.name)
-#     break
-        
-
-
-
+    else:
+        for edge in nodes[-1].edges:
+            edges.append(edge)
+            cost+=edge.weight
+            nodes.append(edge.node2)
+            solution_recur(stage+1,nodes,edges,cost)
+solution_recur(0,[],[],0)
+for solution in solutions:
+    for i in solution.solution_nodes:
+        print(i.name,end='')
 
 
 
