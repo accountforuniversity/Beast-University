@@ -1,4 +1,5 @@
-from PIL import Image,ImageDraw
+from PIL import Image, ImageDraw
+
 img=Image.new('RGBA',(2000,2000),color=(255,255,255))
 draw=ImageDraw.Draw(img)
 def getDrawCords(x,y,x_width,y_width):
