@@ -1,5 +1,7 @@
 from PIL import Image,ImageDraw,ImageFont
-inputs={
+
+all_inputs=[
+    {
 'stage_count':5,
 'nodes_count':[1,4,3,3,1],
 'edge_count':[4,8,7,3,0],
@@ -10,15 +12,29 @@ inputs={
     [[6,9,3],[6,10,4],[7,9,4],[7,10,7],[7,11,6],[8,10,8],[8,11,7]],
     [[9,12,3],[10,12,1],[11,12,4]],
     ]
-}
-X_DIFF=2000
-Y_DIFF=2000
-# highest_height=int(input("Enter max number of nodes in any Stage") or 5) * Y_DIFF
-highest_height=5 * Y_DIFF
+   },
+   {
+'stage_count':5,
+'nodes_count':[1,2,3,2,1],
+'edge_count':[2,5,6,2,0],
+'nodes_name':[1,2,3,4,5,6,7,8,9],
+'edges':[
+    [[1,2,5],[1,3,2]],
+    [[2,4,3],[2,6,3],[3,4,6],[3,5,5],[3,6,8]],
+    [[4,7,1],[4,8,4],[5,7,6],[5,8,2],[6,7,6],[6,8,2]],
+    [[7,9,7],[8,9,3]],
+    ]}]
+inputs=all_inputs[0]
+SCALE_BY=1
+NODE_SIZE=100*SCALE_BY
+X_DIFF=200*SCALE_BY
+Y_DIFF=200*SCALE_BY
+IMAGE_HEIGHT=max(inputs['nodes_count']) * Y_DIFF
 NODE_COLOR=(255,255,255)
 EDGE_COLOR=(255,0,0)
-img=Image.new("RGBA",(20000,10000),"black")
-draw = ImageDraw.Draw(img)
+BG_COLOR=(0,0,0)
+EDGE_WEIGHT_COLOR=(255,255,255)
+NODE_NAME_COLOR=(255,0,0)
 class Stage:
     def __init__(self,stage_name,nodes_count,edge_count):
         self.nodes_count=nodes_count
@@ -42,16 +58,24 @@ class Edge:
         self.weight=weight
         self.stage=stage
         self.is_sol=False
+    def get_color(self):
+        return {'edge_color':(255,0,0),'weight_color':(255,255,255)}
+        if self.node1.y_pos < self.node2.y_pos:
+            return {'edge_color':(255,20,147),'weight_color':(255,105,180)}
+        elif self.node1.y_pos > self.node2.y_pos:
+            return {'edge_color':(255,255,0),'weight_color':(240,230,140)}
+        else:
+            return {'edge_color':(169,169,169),'weight_color':(220,220,220)}
+
     def get_draw_coordinates(self,start_x_pos,start_y_pos):
         return (start_x_pos+self.node1.x_pos,start_y_pos+self.node1.y_pos,start_x_pos+self.node2.x_pos,start_y_pos+self.node2.y_pos)
     def get_weight_coordinates(self,start_x_pos,start_y_pos):
         if self.node1.y_pos < self.node2.y_pos:
-            return (start_x_pos+(self.node1.x_pos + self.node2.x_pos -600 )/2,start_y_pos+(self.node1.y_pos + self.node2.y_pos -300)/2)
+            return (start_x_pos+(self.node1.x_pos + self.node2.x_pos -NODE_SIZE//2 )/2,start_y_pos+(self.node1.y_pos + self.node2.y_pos -NODE_SIZE)/2)
         elif self.node1.y_pos > self.node2.y_pos:
-            return (start_x_pos+(self.node1.x_pos + self.node2.x_pos -600 )/2,start_y_pos+(self.node1.y_pos + self.node2.y_pos +300)/2)
+            return (start_x_pos+(self.node1.x_pos + self.node2.x_pos -NODE_SIZE//2 )/2,start_y_pos+(self.node1.y_pos + self.node2.y_pos +NODE_SIZE//2)/2)
         else:
-            
-            return (start_x_pos+(self.node1.x_pos + self.node2.x_pos  +600)/2,start_y_pos+(self.node1.y_pos + self.node2.y_pos)/2)
+            return (start_x_pos+(self.node1.x_pos + self.node2.x_pos  )/2,start_y_pos+(self.node1.y_pos + self.node2.y_pos - NODE_SIZE//3)/2)
 class Node:
     def __str__(self) -> str:
         return str(self.edges)
@@ -68,32 +92,23 @@ class Node:
         self.edge_count+=1
         self.edges.append(edge)
     def get_draw_coordinate(self,start_x_pos,start_y_pos):
-        return (start_x_pos+self.x_pos-300,start_y_pos+self.y_pos-300,start_x_pos+self.x_pos+300,start_y_pos+self.y_pos+300)
+        return (start_x_pos+self.x_pos-NODE_SIZE//2,start_y_pos+self.y_pos-NODE_SIZE//2,start_x_pos+self.x_pos+NODE_SIZE//2,start_y_pos+self.y_pos+NODE_SIZE//2)
 
 class Solution:
     def __init__(self,solution_edges,solution_nodes,cost):
         self.solution_edges=solution_edges
         self.solution_nodes=solution_nodes
         self.cost=cost
-        self.stage=Stages[0]
-        
-#TODO
-# stage_count=int(input('Enter no of stages: ') or 2)
 stage_count=inputs['stage_count']
 Stages=[]
 for i in range(stage_count):
-    
     if i==stage_count-1:
         node_count_in_this_stage=1
         edge_count_in_this_stage=0
     elif i==0:
         node_count_in_this_stage=1
-        # edge_count_in_this_stage=int(input(f'Enter no of edges in Stage {i+1} going to next Stage: ') or 2)
         edge_count_in_this_stage=inputs['edge_count'][i]
     else:
-        #TODO
-        # node_count_in_this_stage=int(input(f'Enter no of nodes in Stage {i+1}: ') or 2)
-        # edge_count_in_this_stage=int(input(f'Enter no of edges in Stage {i+1} going to next Stage: ') or 2)
         node_count_in_this_stage=inputs['nodes_count'][i]
         edge_count_in_this_stage=inputs['edge_count'][i]
     Stages.append(Stage(stage_name=str(i+1),nodes_count=node_count_in_this_stage,edge_count=edge_count_in_this_stage)) 
@@ -103,7 +118,7 @@ a=0
 for l in range(len(Stages)):
     stage=Stages[l]
     current_x_pos+=X_DIFF
-    current_y_pos=100
+    current_y_pos=50
     if l==0 or l==len(Stages)-1:
         current_y_pos+=Y_DIFF
     for i in range(stage.nodes_count):
@@ -143,53 +158,65 @@ for j in range(stage_count):
 solution_images=[]
 solutions=[]
 def get_image(solutions,show_all=False):
+    optimal_solutions=[i for i in solutions if i.cost==min(solutions,key=lambda x:x.cost).cost]
+    other_solutions=[i for i in solutions if i not in optimal_solutions]
     X_SIZE=int(X_DIFF*2.5*len(Stages))
-    Y_SIZE=highest_height*(len(solutions) if show_all else 1)
+    Y_SIZE=int(IMAGE_HEIGHT*(len(solutions) if show_all else len(optimal_solutions)))+Y_DIFF
     img=Image.new("RGBA",(X_SIZE,Y_SIZE),"black")
     draw = ImageDraw.Draw(img)
     X_POS=0
     Y_POS=0
-
     for stage in Stages:
         for edge in stage.edges:
-            draw.line(edge.get_draw_coordinates(X_POS,Y_POS),width=  10,fill=(255,0,0))
-            draw.text(edge.get_weight_coordinates(X_POS,Y_POS), str(edge.weight), (255,255,255) ,font=ImageFont.truetype("arial.ttf", 200))
+            draw.line(edge.get_draw_coordinates(X_POS,Y_POS),width= NODE_SIZE//20,fill= edge.get_color()['edge_color'])
+            draw.text(edge.get_weight_coordinates(X_POS,Y_POS), str(edge.weight), edge.get_color()['weight_color'] ,font=ImageFont.truetype("arial.ttf", NODE_SIZE//3))
         for node in stage.nodes:
             draw.ellipse(node.get_draw_coordinate(X_POS,Y_POS), fill=(255, 255, 255), outline=(0, 0, 0))
-            draw.text((X_POS+node.x_pos-50 ,Y_POS+node.y_pos -100), node.name, (0, 0, 0),font=ImageFont.truetype("arial.ttf", 200))
-    X_POS=X_SIZE//2
-    optimal=solutions.pop(solutions.index(min(solutions,key=lambda x:x.cost)))
-    solution_edges=optimal.solution_edges
-    draw.text((X_SIZE//1.5,Y_POS+500), str(f'Optimal Solution, Cost={optimal.cost}'), (255,255,255) ,font=ImageFont.truetype("arial.ttf", 400))
-    for stage in Stages:
-
-            for edge in stage.edges:
-                draw.line(edge.get_draw_coordinates(X_POS,Y_POS),width=40 if edge in solution_edges else  10,fill=(0,0, 255) if edge in solution_edges else (255,0,0))
-                draw.text(edge.get_weight_coordinates(X_POS,Y_POS), str(edge.weight), (255,255,255) ,font=ImageFont.truetype("arial.ttf", 200))
-            for node in stage.nodes:
-                draw.ellipse(node.get_draw_coordinate(X_POS,Y_POS), fill=(255, 255, 255), outline=(0, 0, 0))
-                draw.text((X_POS+ node.x_pos-50 ,node.y_pos -100), node.name, (0, 0, 0),font=ImageFont.truetype("arial.ttf", 200))
-
-    if show_all:
-        for i in range(len(solutions)):
-            sol=solutions[i]
-            if i%2==0:
-                X_POS=0
-            else:
-                X_POS=X_SIZE//2
-                Y_POS+=highest_height
-            solution_edges=sol.solution_edges
-            
-            draw.line((X_POS,Y_POS-50),width=40,fill=(255,255, 255) )
-            draw.text((X_POS+X_SIZE//3,Y_POS+500), str(f'Optimal Solution, Cost={optimal.cost}'), (255,255,255) ,font=ImageFont.truetype("arial.ttf", 400))
-            for stage in Stages:
+            draw.text((X_POS+node.x_pos - NODE_SIZE//5,Y_POS+node.y_pos - NODE_SIZE//4), node.name, (255, 0, 0),font=ImageFont.truetype("arial.ttf", NODE_SIZE//2))
+    
+    draw.line((0,Y_POS+IMAGE_HEIGHT*1.5,X_SIZE,Y_POS+IMAGE_HEIGHT*1.5),width= NODE_SIZE//5,fill=(255,0,0))
+    
+    for i in range(len(optimal_solutions)):
+        if i%2!=0:
+            X_POS=X_SIZE//2
+        else:
+            X_POS=0
+            Y_POS+=IMAGE_HEIGHT*1.5
+        optimal=optimal_solutions[i]
+        solution_edges=optimal.solution_edges
+        draw.text((X_POS+ X_SIZE//5,Y_DIFF//1.5+Y_POS), str(f'Optimal Solution, Cost={optimal.cost}'), (255,255,255) ,font=ImageFont.truetype("arial.ttf", NODE_SIZE//3))
+        for stage in Stages:
                 for edge in stage.edges:
-                    draw.line(edge.get_draw_coordinates(X_POS,Y_POS),width=40 if edge in solution_edges else  10,fill=(0,0, 255) if edge in solution_edges else (255,0,0))
-                    draw.text(edge.get_weight_coordinates(X_POS,Y_POS), str(edge.weight), (255,255,255) ,font=ImageFont.truetype("arial.ttf", 200))
+                    draw.line(edge.get_draw_coordinates(X_POS,Y_POS),width=NODE_SIZE//10 if edge in solution_edges else  NODE_SIZE//20,fill=(0,0,255)  if edge in solution_edges else edge.get_color()['edge_color'])
+                    draw.text(edge.get_weight_coordinates(X_POS,Y_POS), str(edge.weight), edge.get_color()['weight_color'] ,font=ImageFont.truetype("arial.ttf", NODE_SIZE//3))
                 for node in stage.nodes:
                     draw.ellipse(node.get_draw_coordinate(X_POS,Y_POS), fill=(255, 255, 255), outline=(0, 0, 0))
-                    draw.text((X_POS+ node.x_pos-50 ,Y_POS+ node.y_pos -100), node.name, (0, 0, 0),font=ImageFont.truetype("arial.ttf", 200))
-            
+                    draw.text((X_POS+node.x_pos - NODE_SIZE//5,Y_POS+node.y_pos - NODE_SIZE//4), node.name, (255, 0, 0),font=ImageFont.truetype("arial.ttf", NODE_SIZE//2))
+        
+                # draw.text((X_POS+ node.x_pos-50 ,node.y_pos -100), node.name, (0, 0, 0),font=ImageFont.truetype("arial.ttf", 200))
+    
+
+    if show_all:
+        
+        draw.line((0,Y_POS+IMAGE_HEIGHT*1.5,X_SIZE,Y_POS+IMAGE_HEIGHT*1.5),width= NODE_SIZE//5,fill=(255,0,0))
+
+        for i in range(len(other_solutions)):
+            if i%2!=0:
+                X_POS=X_SIZE//2
+            else:
+                X_POS=0
+                Y_POS+=IMAGE_HEIGHT*1.5
+            other=other_solutions[i]
+            solution_edges=other.solution_edges
+            draw.text((X_POS+ X_SIZE//5,Y_DIFF//1.5+Y_POS), str(f'Other Solution, Cost={other.cost}'), (255,255,255) ,font=ImageFont.truetype("arial.ttf", NODE_SIZE//3))
+            for stage in Stages:
+                    for edge in stage.edges:
+                        draw.line(edge.get_draw_coordinates(X_POS,Y_POS),width=NODE_SIZE//10 if edge in solution_edges else  NODE_SIZE//20,fill=(0,0,255) if edge in solution_edges else edge.get_color()['edge_color'])
+                        draw.text(edge.get_weight_coordinates(X_POS,Y_POS), str(edge.weight), edge.get_color()['weight_color'],font=ImageFont.truetype("arial.ttf", NODE_SIZE//3))
+                    for node in stage.nodes:
+                        draw.ellipse(node.get_draw_coordinate(X_POS,Y_POS), fill=(255, 255, 255), outline=(0, 0, 0))
+                        draw.text((X_POS+node.x_pos - NODE_SIZE//5,Y_POS+node.y_pos - NODE_SIZE//4), node.name, (255, 0, 0),font=ImageFont.truetype("arial.ttf", NODE_SIZE//2))
+          
     return img
 def solution_recur(stage,nodes,edges,cost):
     if stage==0:
@@ -214,21 +241,15 @@ def solution_recur(stage,nodes,edges,cost):
             nodes.append(edge.node2)
             solution_recur(stage+1,nodes,edges,cost+edge.weight)
 solution_recur(0,[],[],0)
+print(len(solutions))
 for solution in solutions:
     print('Cost= ',solution.cost,end=',')
-    print('Edges= ',end='')
+    print(' Edges= ',end='')
     for i in solution.solution_edges:
         print(i.name,end=',')
-    print('Nodes= ',end='')
+    print(' Nodes= ',end='')
     for i in solution.solution_nodes:
         print(i.name,end=',')
     print()
-# solution_images[0].save('anitest.gif',
-#                save_all=True,
-#                append_images=solution_images[1:2],
-#                duration=100,)
-
-m=min(solutions,key=lambda x:x.cost)
-print(m.cost)
-
-get_image(solutions,True).save('multi_stage_solution.png')
+print(len(solutions))
+get_image(solutions,True).save('multistage_graph/graph.png')
