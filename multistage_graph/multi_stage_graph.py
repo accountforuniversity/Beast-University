@@ -23,8 +23,24 @@ all_inputs=[
     [[2,4,3],[2,6,3],[3,4,6],[3,5,5],[3,6,8]],
     [[4,7,1],[4,8,4],[5,7,6],[5,8,2],[6,7,6],[6,8,2]],
     [[7,9,7],[8,9,3]],
-    ]}]
-inputs=all_inputs[0]
+    ]},
+    {
+'stage_count':9,
+'nodes_count':[1,2,4,3,3,2,4,3,1],
+'edge_count':[2,5,8,7,4,6,12,3,0],
+'nodes_name':['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W'],
+'edges':[
+    [['A','B',4],['A','C',3]],
+    [['B','D',9],['B','E',8],['C','E',8],['C','F',4],['C','G',9]],
+    [['D','H',5],['D','I',7],['E','H',2],['E','J',4],['F','I',6],['F','J',3],['G','I',7],['G','J',5]],
+    [['H','K',11],['H','L',2],['I','K',3],['I','L',13],['I','M',8],['J','L',6],['J','M',7]],
+    [['K','N',6],['L','N',7],['L','O',6],['M','O',8]],
+    [['N','P',4],['N','Q',7],['N','R',3],['O','Q',6],['O','R',5],['O','S',2]],
+    [['P','T',7],['P','U',8],['P','V',4],['Q','T',9],['Q','U',8],['Q','V',3],['R','T',6],['R','U',3],['R','V',11],['S','T',6],['S','U',7],['S','V',5]],
+    [['T','W',6],['U','W',5],['V','W',8]]
+    ]}
+    ]
+inputs=all_inputs[2]
 SCALE_BY=0.5
 NODE_SIZE=int(100*SCALE_BY)
 X_DIFF=int(200*SCALE_BY)
@@ -161,7 +177,8 @@ def get_image(solutions,show_all=False):
     optimal_solutions=[i for i in solutions if i.cost==min(solutions,key=lambda x:x.cost).cost]
     other_solutions=[i for i in solutions if i not in optimal_solutions]
     X_SIZE=int(X_DIFF*3*len(Stages))
-    Y_SIZE=int(IMAGE_HEIGHT*(len(solutions) if show_all else len(optimal_solutions)))+Y_DIFF
+    
+    Y_SIZE=int(IMAGE_HEIGHT*(len(solutions)+1 if show_all else len(optimal_solutions)+1))+IMAGE_HEIGHT
     img=Image.new("RGBA",(X_SIZE,Y_SIZE),"black")
     draw = ImageDraw.Draw(img)
     X_POS=0
