@@ -25,10 +25,10 @@ all_inputs=[
     [[7,9,7],[8,9,3]],
     ]}]
 inputs=all_inputs[0]
-SCALE_BY=1
-NODE_SIZE=100*SCALE_BY
-X_DIFF=200*SCALE_BY
-Y_DIFF=200*SCALE_BY
+SCALE_BY=0.5
+NODE_SIZE=int(100*SCALE_BY)
+X_DIFF=int(200*SCALE_BY)
+Y_DIFF=int(200*SCALE_BY)
 IMAGE_HEIGHT=max(inputs['nodes_count']) * Y_DIFF
 NODE_COLOR=(255,255,255)
 EDGE_COLOR=(255,0,0)
@@ -160,7 +160,7 @@ solutions=[]
 def get_image(solutions,show_all=False):
     optimal_solutions=[i for i in solutions if i.cost==min(solutions,key=lambda x:x.cost).cost]
     other_solutions=[i for i in solutions if i not in optimal_solutions]
-    X_SIZE=int(X_DIFF*2.5*len(Stages))
+    X_SIZE=int(X_DIFF*3*len(Stages))
     Y_SIZE=int(IMAGE_HEIGHT*(len(solutions) if show_all else len(optimal_solutions)))+Y_DIFF
     img=Image.new("RGBA",(X_SIZE,Y_SIZE),"black")
     draw = ImageDraw.Draw(img)
@@ -169,11 +169,14 @@ def get_image(solutions,show_all=False):
     for stage in Stages:
         for edge in stage.edges:
             draw.line(edge.get_draw_coordinates(X_POS,Y_POS),width= NODE_SIZE//20,fill= edge.get_color()['edge_color'])
-            draw.text(edge.get_weight_coordinates(X_POS,Y_POS), str(edge.weight), edge.get_color()['weight_color'] ,font=ImageFont.truetype("arial.ttf", NODE_SIZE//3))
+            # draw.text(edge.get_weight_coordinates(X_POS,Y_POS), str(edge.weight), edge.get_color()['weight_color'] ,font=ImageFont.truetype("arial.ttf", NODE_SIZE//3))
         for node in stage.nodes:
             draw.ellipse(node.get_draw_coordinate(X_POS,Y_POS), fill=(255, 255, 255), outline=(0, 0, 0))
             draw.text((X_POS+node.x_pos - NODE_SIZE//5,Y_POS+node.y_pos - NODE_SIZE//4), node.name, (255, 0, 0),font=ImageFont.truetype("arial.ttf", NODE_SIZE//2))
-    
+    for stage in Stages:
+        for edge in stage.edges:
+            draw.text(edge.get_weight_coordinates(X_POS,Y_POS), str(edge.weight), edge.get_color()['weight_color'] ,font=ImageFont.truetype("arial.ttf", NODE_SIZE//3))
+        
     draw.line((0,Y_POS+IMAGE_HEIGHT*1.5,X_SIZE,Y_POS+IMAGE_HEIGHT*1.5),width= NODE_SIZE//5,fill=(255,0,0))
     
     for i in range(len(optimal_solutions)):
@@ -188,10 +191,13 @@ def get_image(solutions,show_all=False):
         for stage in Stages:
                 for edge in stage.edges:
                     draw.line(edge.get_draw_coordinates(X_POS,Y_POS),width=NODE_SIZE//10 if edge in solution_edges else  NODE_SIZE//20,fill=(0,0,255)  if edge in solution_edges else edge.get_color()['edge_color'])
-                    draw.text(edge.get_weight_coordinates(X_POS,Y_POS), str(edge.weight), edge.get_color()['weight_color'] ,font=ImageFont.truetype("arial.ttf", NODE_SIZE//3))
+                    # draw.text(edge.get_weight_coordinates(X_POS,Y_POS), str(edge.weight), edge.get_color()['weight_color'] ,font=ImageFont.truetype("arial.ttf", NODE_SIZE//3))
                 for node in stage.nodes:
                     draw.ellipse(node.get_draw_coordinate(X_POS,Y_POS), fill=(255, 255, 255), outline=(0, 0, 0))
                     draw.text((X_POS+node.x_pos - NODE_SIZE//5,Y_POS+node.y_pos - NODE_SIZE//4), node.name, (255, 0, 0),font=ImageFont.truetype("arial.ttf", NODE_SIZE//2))
+        for stage in Stages:
+            for edge in stage.edges:
+                draw.text(edge.get_weight_coordinates(X_POS,Y_POS), str(edge.weight), edge.get_color()['weight_color'] ,font=ImageFont.truetype("arial.ttf", NODE_SIZE//3))
         
                 # draw.text((X_POS+ node.x_pos-50 ,node.y_pos -100), node.name, (0, 0, 0),font=ImageFont.truetype("arial.ttf", 200))
     
@@ -212,11 +218,14 @@ def get_image(solutions,show_all=False):
             for stage in Stages:
                     for edge in stage.edges:
                         draw.line(edge.get_draw_coordinates(X_POS,Y_POS),width=NODE_SIZE//10 if edge in solution_edges else  NODE_SIZE//20,fill=(0,0,255) if edge in solution_edges else edge.get_color()['edge_color'])
-                        draw.text(edge.get_weight_coordinates(X_POS,Y_POS), str(edge.weight), edge.get_color()['weight_color'],font=ImageFont.truetype("arial.ttf", NODE_SIZE//3))
+                        # draw.text(edge.get_weight_coordinates(X_POS,Y_POS), str(edge.weight), edge.get_color()['weight_color'],font=ImageFont.truetype("arial.ttf", NODE_SIZE//3))
                     for node in stage.nodes:
                         draw.ellipse(node.get_draw_coordinate(X_POS,Y_POS), fill=(255, 255, 255), outline=(0, 0, 0))
                         draw.text((X_POS+node.x_pos - NODE_SIZE//5,Y_POS+node.y_pos - NODE_SIZE//4), node.name, (255, 0, 0),font=ImageFont.truetype("arial.ttf", NODE_SIZE//2))
-          
+            for stage in Stages:
+                for edge in stage.edges:
+                    draw.text(edge.get_weight_coordinates(X_POS,Y_POS), str(edge.weight), edge.get_color()['weight_color'] ,font=ImageFont.truetype("arial.ttf", NODE_SIZE//3))
+        
     return img
 def solution_recur(stage,nodes,edges,cost):
     if stage==0:
