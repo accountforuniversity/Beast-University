@@ -1,3 +1,3 @@
-class inherit {
-    main\
-}
+// class inherit {
+//     main\
+// }
